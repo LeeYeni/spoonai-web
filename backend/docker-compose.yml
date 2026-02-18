@@ -1,0 +1,9 @@
+services:
+  backend:
+    build: .
+    container_name: spoonai
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    env_file:
+      - .env
