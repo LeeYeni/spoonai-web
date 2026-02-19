@@ -1,5 +1,6 @@
 from langchain_community.retrievers import BM25Retriever
 from langchain_core.documents import Document
+from kiwipiepy import Kiwi
 
 from src.service.faiss_service import FAISSService
 
@@ -9,6 +10,17 @@ class SearchService:
         self.sparse_retriever = None
         self.docs = []
         self.nearby_restaurants = []
+        self.kiwi = Kiwi()
+
+    def kiwi_tokenizer(self, text: str) -> list[str]:
+        """
+        Kiwi를 사용하여 텍스트에서 명사, 동사, 형용사 등 의미 있는 형태소만 추출합니다.
+        """
+        if not text:
+            return []
+        
+        result = self.kiwi.tokenize(text)
+        return [r.form for r in result if r.tag in ['NNG', 'NNP', 'VV', 'VA', 'SL']]
 
     def prepare_search_context(self, docs: list):
         self.docs = [
@@ -27,7 +39,10 @@ class SearchService:
         """
         키워드를 기반으로 BM25 검색기를 생성합니다.
         """
-        retriever = BM25Retriever.from_documents(self.docs)
+        retriever = BM25Retriever.from_documents(
+            self.docs,
+            preprocess_func=self.kiwi_tokenizer
+        )
         retriever.k = 20
         return retriever
 

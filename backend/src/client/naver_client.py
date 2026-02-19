@@ -29,7 +29,7 @@ class NaverClient:
 
         return text
 
-    async def search_blog_reviews(self, restaurant: str, display: int = 100) -> str:
+    async def search_blog_reviews(self, client: httpx.AsyncClient, restaurant: str, display: int = 100) -> str:
         """
         특정 검색어로 블로그 리뷰 요약을 가져옵니다.
         임베딩하기 좋게 하나의 문자열로 합쳐서 반환합니다.
@@ -44,25 +44,24 @@ class NaverClient:
             "sort": "sim"
         }
 
-        async with httpx.AsyncClient() as client:
-            response = await client.get(self.base_url, headers=self.headers, params=params)
+        response = await client.get(self.base_url, headers=self.headers, params=params)
             
-            items = response.json().get("items", [])
+        items = response.json().get("items", [])
 
-            results = ""
-            for item in items:
-                title = self.clean_text(item["title"])
+        results = ""
+        for item in items:
+            title = self.clean_text(item["title"])
 
-                if restaurant not in title.replace(" ", ""):
-                    continue
+            if restaurant not in title.replace(" ", ""):
+                continue
 
-                desc = self.clean_text(item["description"])
-                results = results + f"\n[{title}] {desc}"
+            desc = self.clean_text(item["description"])
+            results = results + f"\n[{title}] {desc}"
 
-                if len(results) >= 500:
-                    break
+            if len(results) >= 500:
+                break
 
-            if results == "":
-                results = "리뷰가 존재하지 않습니다."
+        if results == "":
+            results = "리뷰가 존재하지 않습니다."
 
-            return results
+        return results

@@ -9,8 +9,8 @@ class KakaoClient:
         self.headers = {
             "Authorization": f"KakaoAK {self.KAKAO_API_KEY}"
         }
-        # 한 번에 최대 5개 페이지만 동시에 요청하도록 제한
-        self.semaphore = asyncio.Semaphore(5)
+        # 한 번에 최대 10개 페이지만 동시에 요청하도록 제한
+        self.semaphore = asyncio.Semaphore(10)
 
     async def search_restaurants(self, client: httpx.AsyncClient, x: float, y: float, radius: int = 500, page: int = 1, size: int = 15):
         base_url = "https://dapi.kakao.com/v2/local/search/category.json"
@@ -89,7 +89,7 @@ class KakaoClient:
 
         return all_points
         
-    async def search_restaurants_concurrently(self, x: float, y: float, target_km: float = 0.5, max_pages: int = 4, step: float = 0.003):
+    async def search_restaurants_concurrently(self, client: httpx.AsyncClient, x: float, y: float, target_km: float = 0.5, max_pages: int = 4, step: float = 0.003):
         """
         search_restaurants를 page 1부터 max_pages까지 병렬로 호출합니다.
         """
@@ -98,29 +98,28 @@ class KakaoClient:
 
         # Task 리스트 생성
         tasks = []
-        async with httpx.AsyncClient() as client:
-            for px, py in all_points:
-                for page in range(1, max_pages + 1):
-                    tasks.append(
-                        self.search_restaurants(
-                            client=client,
-                            x=px,
-                            y=py,
-                            page=page
-                        )
+        for px, py in all_points:
+            for page in range(1, max_pages + 1):
+                tasks.append(
+                    self.search_restaurants(
+                        client=client,
+                        x=px,
+                        y=py,
+                        page=page
                     )
+                )
 
-            # 병렬 실행
-            results = await asyncio.gather(*tasks)
+        # 병렬 실행
+        results = await asyncio.gather(*tasks)
 
-            # Flatten
-            final_results = []
-            seen_restaurants = set()
+        # Flatten
+        final_results = []
+        seen_restaurants = set()
 
-            for r_lst in results:
-                for r in r_lst:
-                    if r["restaurant"] not in seen_restaurants:
-                        final_results.append(r)
-                        seen_restaurants.add(r["restaurant"])
+        for r_lst in results:
+            for r in r_lst:
+                if r["restaurant"] not in seen_restaurants:
+                    final_results.append(r)
+                    seen_restaurants.add(r["restaurant"])
 
-            return final_results
+        return final_results

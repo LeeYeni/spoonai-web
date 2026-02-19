@@ -14,3 +14,5 @@ pydantic>=2.7.0
 uvicorn>=0.30.0
 sqlalchemy>=2.0.30
 pymysql>=1.1.0
+
+kiwipiepy>=0.20.0

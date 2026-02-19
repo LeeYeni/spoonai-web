@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
-# import uvicorn
+import uvicorn
 
 from src.entity.base import init_db
 from src.api import search
@@ -34,5 +34,5 @@ app.include_router(search.router)
 def read_root():
     return {"message": "spoonai 서버에 오신 것을 환영합니다."}
 
-# if __name__ == "__main__":
-#     uvicorn.run(app="src.main:app", reload=True)
+if __name__ == "__main__":
+    uvicorn.run(app="src.main:app", reload=True)
