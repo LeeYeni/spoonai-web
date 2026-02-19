@@ -52,22 +52,54 @@ class KakaoClient:
 
             return results
         
-    async def search_restaurants_concurrently(self, x: float, y: float, max_pages: int = 4):
+    def calculate_count(self, target_km: float, step: float) -> int:
+        """
+        원하는 탐색 반경(km)을 입력받아 적절한 반복 횟수를 반환합니다.
+        기준: 위도 0.01 = 약 1.1km
+        """
+        step_km = (step / 0.01) * 1.1
+        cnt = round(target_km / step_km)
+
+        return max(0, cnt)
+    
+    def create_points(self, x: float, y: float, cnt: int, step: float) -> set:
+        """
+        탐색할 points를 생성합니다.
+        """
+        directions = [
+            (-step, 0), (0, step), (0, -step), (step, 0),
+            (-step, -step), (-step, step), (step, -step), (step, step)
+        ]
+
+        all_points = {(x, y)}
+        current_layer = {(x, y)}
+        for _ in range(cnt):
+            next_layer = set()
+
+            for cx, cy in current_layer:
+                for dx, dy in directions:
+                    px = round(cx + dx, 6)
+                    py = round(cy + dy, 6)
+
+                    if (px, py) not in all_points:
+                        next_layer.add((px, py))
+                        all_points.add((px, py))
+
+            current_layer = next_layer
+
+        return all_points
+        
+    async def search_restaurants_concurrently(self, x: float, y: float, target_km: float = 0.5, max_pages: int = 4, step: float = 0.003):
         """
         search_restaurants를 page 1부터 max_pages까지 병렬로 호출합니다.
         """
-        points = [
-            (x, y),                # 중심
-            (x + 0.005, y),        # 동
-            (x - 0.005, y),        # 서
-            (x, y + 0.005),        # 남
-            (x, y - 0.005)         # 북
-        ]
-        
+        cnt = self.calculate_count(target_km, step)
+        all_points = self.create_points(x, y, cnt, step)
+
         # Task 리스트 생성
+        tasks = []
         async with httpx.AsyncClient() as client:
-            tasks = []
-            for px, py in points:
+            for px, py in all_points:
                 for page in range(1, max_pages + 1):
                     tasks.append(
                         self.search_restaurants(
