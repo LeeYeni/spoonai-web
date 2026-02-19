@@ -12,8 +12,6 @@ export const useLocation = () => {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        console.log(position.coords.longitude);
-        console.log(position.coords.latitude);
         setCoords({
           x: position.coords.longitude, // 경도
           y: position.coords.latitude,  // 위도
