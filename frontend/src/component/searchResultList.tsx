@@ -28,8 +28,8 @@ export default function SearchResultList({ results, isLoading }: SearchResultLis
           🥄
         </div>
         <h3 className="text-xl font-bold text-gray-900">아직 스푼이 비어있어요</h3>
-        <p className="text-gray-500 mt-2">
-          먹고 싶은 메뉴나 분위기를 입력해 취향을 찾아보세요!
+        <p className="text-gray-500 mt-2 text-sm sm:text-lg md:text-lg lg:text-lg">
+          먹고 싶은 메뉴를 입력해 10초만에 근처 식당을 찾아보세요!
         </p>
       </div>
     );
