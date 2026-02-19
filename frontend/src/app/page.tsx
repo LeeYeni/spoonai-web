@@ -17,12 +17,14 @@ export default function Home() {
 
   const handleSearch = async (query: string) => {
     setIsLoading(true);
+    console.log(query)
 
     const x = coords?.x || 126.832633;
     const y = coords?.y || 37.634643;
 
     const request: SearchRequest = { x, y, query}
     const data = await recommend(request);
+    console.log(data);
 
     setResults(data);
   };
