@@ -23,10 +23,10 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
       <div className="max-w-3xl w-full text-center space-y-6">
         {/* 타이틀 영역 */}
         <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-5xl font-black text-gray-900 tracking-tight">
-          오늘 당신의 <span className="text-orange-500">취향</span>은 무엇인가요?
+          오늘 당신의 <span className="text-orange-500">메뉴</span>는 무엇인가요?
         </h2>
         <p className="text-gray-500 text-sm sm:text-lg md:text-lg lg:text-lg font-medium">
-          "매콤달달한 떡볶이 맛집 알려줘"와 같이 구체적으로 물어보세요.
+          "매콤달달한 떡볶이 맛집"과 같이 구체적으로 물어보세요.
         </p>
 
         {/* 검색창 영역 */}
